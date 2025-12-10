@@ -1,0 +1,78 @@
+import { Track, Sample } from './types';
+
+export const MOCK_TRACKS: Track[] = [
+  {
+    id: '1',
+    title: 'Neon Horizon',
+    artist: 'Cyber Runner',
+    bpm: 128,
+    key: '4A',
+    duration: 180, // 3:00
+    coverUrl: 'https://picsum.photos/200/200?random=1',
+    genre: 'Synthwave',
+    moodIntensity: 60,
+  },
+  {
+    id: '2',
+    title: 'Deep Space Bass',
+    artist: 'Galactic Groove',
+    bpm: 140,
+    key: '2B',
+    duration: 210, // 3:30
+    coverUrl: 'https://picsum.photos/200/200?random=2',
+    genre: 'Dubstep',
+    moodIntensity: 90,
+  },
+  {
+    id: '3',
+    title: 'Midnight City',
+    artist: 'Retro Wave',
+    bpm: 110,
+    key: '8A',
+    duration: 150,
+    coverUrl: 'https://picsum.photos/200/200?random=3',
+    genre: 'House',
+    moodIntensity: 40,
+  },
+  {
+    id: '4',
+    title: 'System Override',
+    artist: 'Glitch Mob',
+    bpm: 174,
+    key: '5A',
+    duration: 240,
+    coverUrl: 'https://picsum.photos/200/200?random=4',
+    genre: 'Drum & Bass',
+    moodIntensity: 95,
+  },
+  {
+    id: '5',
+    title: 'Ethereal Dreams',
+    artist: 'Lunar Tides',
+    bpm: 120,
+    key: '1A',
+    duration: 300,
+    coverUrl: 'https://picsum.photos/200/200?random=5',
+    genre: 'Trance',
+    moodIntensity: 75,
+  },
+];
+
+export const MOCK_SAMPLES: Sample[] = [
+  { id: 's1', name: 'Kick 808', color: 'bg-red-500', type: 'drum' },
+  { id: 's2', name: 'Snare Future', color: 'bg-orange-500', type: 'drum' },
+  { id: 's3', name: 'HiHat Closed', color: 'bg-yellow-500', type: 'drum' },
+  { id: 's4', name: 'Clap Reverb', color: 'bg-pink-500', type: 'drum' },
+  { id: 's5', name: 'Riser FX', color: 'bg-blue-500', type: 'fx' },
+  { id: 's6', name: 'Drop Impact', color: 'bg-purple-500', type: 'fx' },
+  { id: 's7', name: 'Vox "Hey"', color: 'bg-green-500', type: 'vocal' },
+  { id: 's8', name: 'Vox "Go"', color: 'bg-teal-500', type: 'vocal' },
+  { id: 's9', name: 'Synth Stab', color: 'bg-indigo-500', type: 'synth' },
+  { id: 's10', name: 'Bass Wobble', color: 'bg-rose-500', type: 'synth' },
+  { id: 's11', name: 'Laser Zap', color: 'bg-cyan-500', type: 'fx' },
+  { id: 's12', name: 'Siren', color: 'bg-red-600', type: 'fx' },
+  { id: 's13', name: 'Chant A', color: 'bg-emerald-500', type: 'vocal' },
+  { id: 's14', name: 'Chant B', color: 'bg-lime-500', type: 'vocal' },
+  { id: 's15', name: 'Crash', color: 'bg-amber-500', type: 'drum' },
+  { id: 's16', name: 'Sub Drop', color: 'bg-fuchsia-600', type: 'fx' },
+];
