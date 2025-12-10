@@ -1,4 +1,3 @@
-
 import { DeckId, EffectType } from "../types";
 
 class DeckSynth {
@@ -249,7 +248,22 @@ class AudioEngine {
   masterGain: GainNode;
   deckA: DeckSynth;
   deckB: DeckSynth;
+  micNode: MediaStreamAudioSourceNode | null = null;
   
+  // Sequencer State
+  sequencerPlaying: boolean = false;
+  sequencerBpm: number = 120;
+  nextStepTime: number = 0;
+  currentStep: number = 0;
+  sequencerTimerID: number | undefined;
+  // 4 tracks, 16 steps
+  sequencerPattern: boolean[][] = [
+      new Array(16).fill(false), // Kick
+      new Array(16).fill(false), // Snare
+      new Array(16).fill(false), // HiHat
+      new Array(16).fill(false)  // Bass
+  ];
+
   constructor() {
     // @ts-ignore
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -304,6 +318,119 @@ class AudioEngine {
     
     osc.start();
     osc.stop(this.ctx.currentTime + 0.5);
+  }
+
+  // --- Microphone Logic ---
+  async enableMicrophone() {
+      if (this.micNode) return;
+      try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          this.resume();
+          this.micNode = this.ctx.createMediaStreamSource(stream);
+          this.micNode.connect(this.masterGain);
+      } catch (e) {
+          console.error("Mic Error:", e);
+      }
+  }
+
+  disableMicrophone() {
+      if (this.micNode) {
+          this.micNode.disconnect();
+          this.micNode = null;
+      }
+  }
+
+  // --- Sequencer Logic ---
+  setSequencerStep(track: number, step: number, active: boolean) {
+      this.sequencerPattern[track][step] = active;
+  }
+
+  setSequencerBpm(bpm: number) {
+      this.sequencerBpm = bpm;
+  }
+
+  toggleSequencer() {
+      if (this.sequencerPlaying) {
+          this.sequencerPlaying = false;
+          window.clearTimeout(this.sequencerTimerID);
+          this.currentStep = 0;
+      } else {
+          this.resume();
+          this.sequencerPlaying = true;
+          this.nextStepTime = this.ctx.currentTime;
+          this.scheduleSequencer();
+      }
+      return this.sequencerPlaying;
+  }
+
+  scheduleSequencer() {
+      const secondsPerStep = (60.0 / this.sequencerBpm) / 4; // 16th notes
+      const scheduleAheadTime = 0.1;
+
+      while (this.nextStepTime < this.ctx.currentTime + scheduleAheadTime) {
+          this.playSequencerStep(this.nextStepTime);
+          this.nextStepTime += secondsPerStep;
+          this.currentStep = (this.currentStep + 1) % 16;
+      }
+
+      if (this.sequencerPlaying) {
+          this.sequencerTimerID = window.setTimeout(() => this.scheduleSequencer(), 25);
+      }
+  }
+
+  playSequencerStep(time: number) {
+      // Track 0: Kick
+      if (this.sequencerPattern[0][this.currentStep]) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.frequency.setValueAtTime(150, time);
+          osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+          gain.gain.setValueAtTime(0.8, time);
+          gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(time);
+          osc.stop(time + 0.5);
+      }
+      // Track 1: Snare
+      if (this.sequencerPattern[1][this.currentStep]) {
+        const osc = this.ctx.createOscillator();
+        osc.type = 'triangle';
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(200, time);
+        gain.gain.setValueAtTime(0.4, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(time);
+        osc.stop(time + 0.1);
+      }
+      // Track 2: HiHat
+      if (this.sequencerPattern[2][this.currentStep]) {
+        const osc = this.ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, time);
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.1, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(time);
+        osc.stop(time + 0.05);
+      }
+      // Track 3: Bass
+      if (this.sequencerPattern[3][this.currentStep]) {
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(60, time);
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(time);
+        osc.stop(time + 0.4);
+      }
   }
 }
 

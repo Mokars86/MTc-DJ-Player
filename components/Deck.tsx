@@ -16,10 +16,11 @@ interface DeckProps {
   onSync: () => void;
   onDropEffect: (effect: EffectType) => void;
   onRemoveEffect: (effect: EffectType) => void;
+  className?: string;
 }
 
 export const Deck: React.FC<DeckProps> = ({ 
-    id, state, onTogglePlay, onSeek, onSetCue, onJumpCue, onDeleteCue, onSync, onDropEffect, onRemoveEffect 
+    id, state, onTogglePlay, onSeek, onSetCue, onJumpCue, onDeleteCue, onSync, onDropEffect, onRemoveEffect, className = ''
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   
@@ -59,7 +60,7 @@ export const Deck: React.FC<DeckProps> = ({
 
   return (
     <GlassCard 
-        className={`flex flex-col p-4 h-full relative ${bgAccent} transition-all duration-500 ${isDragOver ? 'ring-4 ring-white/50 scale-[1.01]' : ''}`}
+        className={`flex flex-col p-4 h-full relative ${bgAccent} transition-all duration-500 ${isDragOver ? 'ring-4 ring-white/50 scale-[1.01]' : ''} ${className}`}
     >
       {/* Drag Overlay */}
       {isDragOver && (

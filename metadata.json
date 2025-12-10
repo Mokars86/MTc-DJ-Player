@@ -1,5 +1,7 @@
 {
   "name": "MTc DJ Player",
   "description": "A futuristic, AI-powered modular DJ media player with holographic visuals and intelligent mixing assistance.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }

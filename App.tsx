@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppMode, DeckId, DeckState, MixerState, Track, EffectType, Notification } from './types';
 import { TopBar } from './components/TopBar';
@@ -10,6 +9,9 @@ import { SamplerGrid } from './components/SamplerGrid';
 import { LibraryPanel } from './components/LibraryPanel';
 import { SplashScreen } from './components/SplashScreen';
 import { ToastContainer } from './components/ui/Toast.tsx';
+import { MediaView } from './components/MediaView';
+import { LiveView } from './components/LiveView';
+import { StudioView } from './components/StudioView';
 import { MOCK_TRACKS } from './constants';
 import { getAITransitionSuggestion } from './services/geminiService';
 import { audioEngine } from './services/audioEngine';
@@ -305,80 +307,111 @@ const App: React.FC = () => {
               <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-100 dark:bg-teal-700 rounded-full mix-blend-screen filter blur-[120px] animate-pulse delay-1000"></div>
           </div>
 
-          <div className="flex-1 flex flex-col z-10 min-w-[300px]">
-            <Deck 
-              id={DeckId.A} 
-              state={deckA} 
-              onTogglePlay={() => togglePlay(DeckId.A)}
-              onLoadTrack={(t) => handleLoadTrack(t, 'A')}
-              onSeek={(time) => handleSeek(DeckId.A, time)}
-              onSetCue={(i) => handleCue(DeckId.A, i, 'set')}
-              onJumpCue={(i) => handleCue(DeckId.A, i, 'jump')}
-              onDeleteCue={(i) => handleCue(DeckId.A, i, 'delete')}
-              onSync={() => handleSync(DeckId.A)}
-              onDropEffect={(fx) => handleEffectDrop(DeckId.A, fx)}
-              onRemoveEffect={(fx) => handleRemoveEffect(DeckId.A, fx)}
-            />
-          </div>
+          {mode === AppMode.DJ && (
+            <>
+              <div className="flex-1 flex flex-col z-10 min-w-[300px]">
+                <Deck 
+                  id={DeckId.A} 
+                  state={deckA} 
+                  onTogglePlay={() => togglePlay(DeckId.A)}
+                  onLoadTrack={(t) => handleLoadTrack(t, 'A')}
+                  onSeek={(time) => handleSeek(DeckId.A, time)}
+                  onSetCue={(i) => handleCue(DeckId.A, i, 'set')}
+                  onJumpCue={(i) => handleCue(DeckId.A, i, 'jump')}
+                  onDeleteCue={(i) => handleCue(DeckId.A, i, 'delete')}
+                  onSync={() => handleSync(DeckId.A)}
+                  onDropEffect={(fx) => handleEffectDrop(DeckId.A, fx)}
+                  onRemoveEffect={(fx) => handleRemoveEffect(DeckId.A, fx)}
+                  className="flex-1"
+                />
+              </div>
 
-          <div className="flex flex-col gap-4 items-center z-10">
-            <Mixer 
-              mixerState={mixer}
-              deckAState={deckA}
-              deckBState={deckB}
-              setCrossfader={(val) => setMixer(prev => ({ ...prev, crossfader: val }))}
-              setVolumeA={(val) => setDeckA(prev => ({...prev, volume: val}))}
-              setVolumeB={(val) => setDeckB(prev => ({...prev, volume: val}))}
-              setEqA={(band, val) => setDeckA(prev => ({...prev, eq: {...prev.eq, [band]: val}}))}
-              setEqB={(band, val) => setDeckB(prev => ({...prev, eq: {...prev.eq, [band]: val}}))}
-              setFilterA={(val) => setDeckA(prev => ({...prev, filter: val}))}
-              setFilterB={(val) => setDeckB(prev => ({...prev, filter: val}))}
-              setGainA={(val) => setDeckA(prev => ({...prev, gain: val}))}
-              setGainB={(val) => setDeckB(prev => ({...prev, gain: val}))}
-              setMasterVolume={(val) => setMixer(prev => ({...prev, masterVolume: val}))}
-            />
-            
-            <div className="w-full bg-white/60 dark:bg-glass-100 border border-black/5 dark:border-white/10 rounded-lg p-2 text-center backdrop-blur-md">
-              <p className="text-[10px] uppercase text-teal-600 dark:text-teal-400 font-bold mb-1">AI Mix Assist</p>
-              <p className="text-xs text-slate-800 dark:text-white/80 animate-pulse">
-                  {aiSuggestion || "Analyzing tracks..."}
-              </p>
+              <div className="flex flex-col gap-4 items-center z-10">
+                <Mixer 
+                  mixerState={mixer}
+                  deckAState={deckA}
+                  deckBState={deckB}
+                  setCrossfader={(val) => setMixer(prev => ({ ...prev, crossfader: val }))}
+                  setVolumeA={(val) => setDeckA(prev => ({...prev, volume: val}))}
+                  setVolumeB={(val) => setDeckB(prev => ({...prev, volume: val}))}
+                  setEqA={(band, val) => setDeckA(prev => ({...prev, eq: {...prev.eq, [band]: val}}))}
+                  setEqB={(band, val) => setDeckB(prev => ({...prev, eq: {...prev.eq, [band]: val}}))}
+                  setFilterA={(val) => setDeckA(prev => ({...prev, filter: val}))}
+                  setFilterB={(val) => setDeckB(prev => ({...prev, filter: val}))}
+                  setGainA={(val) => setDeckA(prev => ({...prev, gain: val}))}
+                  setGainB={(val) => setDeckB(prev => ({...prev, gain: val}))}
+                  setMasterVolume={(val) => setMixer(prev => ({...prev, masterVolume: val}))}
+                />
+                
+                <div className="w-full bg-white/60 dark:bg-glass-100 border border-black/5 dark:border-white/10 rounded-lg p-2 text-center backdrop-blur-md">
+                  <p className="text-[10px] uppercase text-teal-600 dark:text-teal-400 font-bold mb-1">AI Mix Assist</p>
+                  <p className="text-xs text-slate-800 dark:text-white/80 animate-pulse">
+                      {aiSuggestion || "Analyzing tracks..."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col z-10 min-w-[300px]">
+                <Deck 
+                  id={DeckId.B} 
+                  state={deckB} 
+                  onTogglePlay={() => togglePlay(DeckId.B)}
+                  onLoadTrack={(t) => handleLoadTrack(t, 'B')}
+                  onSeek={(time) => handleSeek(DeckId.B, time)}
+                  onSetCue={(i) => handleCue(DeckId.B, i, 'set')}
+                  onJumpCue={(i) => handleCue(DeckId.B, i, 'jump')}
+                  onDeleteCue={(i) => handleCue(DeckId.B, i, 'delete')}
+                  onSync={() => handleSync(DeckId.B)}
+                  onDropEffect={(fx) => handleEffectDrop(DeckId.B, fx)}
+                  onRemoveEffect={(fx) => handleRemoveEffect(DeckId.B, fx)}
+                  className="flex-1"
+                />
+              </div>
+
+              <div className="z-20">
+                  <EffectsRack />
+              </div>
+            </>
+          )}
+
+          {mode === AppMode.MEDIA && (
+              <div className="w-full h-full z-10">
+                  <MediaView 
+                    tracks={libraryTracks} 
+                    onLoadTrack={handleLoadTrack}
+                    onImport={handleImportTracks}
+                  />
+              </div>
+          )}
+
+          {mode === AppMode.LIVE && (
+              <div className="w-full h-full z-10">
+                  <LiveView />
+              </div>
+          )}
+
+          {mode === AppMode.STUDIO && (
+              <div className="w-full h-full z-10">
+                  <StudioView />
+              </div>
+          )}
+        </div>
+
+        {/* Bottom Section (Sampler/Library) - Only visible in DJ Mode */}
+        {mode === AppMode.DJ && (
+            <div className="h-64 flex gap-4 px-4 pb-2 z-10">
+            <div className="w-1/3 max-w-[400px]">
+                <SamplerGrid />
             </div>
-          </div>
-
-          <div className="flex-1 flex flex-col z-10 min-w-[300px]">
-            <Deck 
-              id={DeckId.B} 
-              state={deckB} 
-              onTogglePlay={() => togglePlay(DeckId.B)}
-              onLoadTrack={(t) => handleLoadTrack(t, 'B')}
-              onSeek={(time) => handleSeek(DeckId.B, time)}
-              onSetCue={(i) => handleCue(DeckId.B, i, 'set')}
-              onJumpCue={(i) => handleCue(DeckId.B, i, 'jump')}
-              onDeleteCue={(i) => handleCue(DeckId.B, i, 'delete')}
-              onSync={() => handleSync(DeckId.B)}
-              onDropEffect={(fx) => handleEffectDrop(DeckId.B, fx)}
-              onRemoveEffect={(fx) => handleRemoveEffect(DeckId.B, fx)}
-            />
-          </div>
-
-          <div className="z-20">
-              <EffectsRack />
-          </div>
-        </div>
-
-        <div className="h-64 flex gap-4 px-4 pb-2 z-10">
-          <div className="w-1/3 max-w-[400px]">
-              <SamplerGrid />
-          </div>
-          <div className="flex-1">
-              <LibraryPanel 
-                tracks={libraryTracks}
-                onLoadTrack={handleLoadTrack} 
-                onImportTracks={handleImportTracks}
-              />
-          </div>
-        </div>
+            <div className="flex-1">
+                <LibraryPanel 
+                    tracks={libraryTracks}
+                    onLoadTrack={handleLoadTrack} 
+                    onImportTracks={handleImportTracks}
+                />
+            </div>
+            </div>
+        )}
 
         <Footer />
       </div>
